@@ -58,6 +58,9 @@ class Api::V1::TransactionsController < Api::ApiController
         one_transac_one_country = transactions.select(:country).distinct
         countries = one_transac_one_country.map  { |country| country.country }
 
+        datetime = transactions.select([:date, :unit_price, :quantity]).order('date').map { |t| {"date": t.date.to_s[0..6], "amount": t.unit_price * t.quantity}}
+        unique_datetime = datetime.uniq { |d| d.first }.last(30) 
+
 
         sum = transactions.map { |transaction| transaction.quantity * transaction.unit_price }.sum
         number_orders = transactions.select(:order_id).distinct.count
@@ -66,6 +69,7 @@ class Api::V1::TransactionsController < Api::ApiController
         {
           status: 'success',
           countries: countries,
+          datetime: unique_datetime,
           revenues: sum,
           avg_revenues: sum / number_orders,
           customers: number_customers,
@@ -75,7 +79,9 @@ class Api::V1::TransactionsController < Api::ApiController
     def calculate_one_country(transactions, country)
         one_transac_one_country = transactions.select(:country).distinct
         countries = one_transac_one_country.map  { |country| country.country }
-    
+
+        datetime = transactions.where(country: country).select([:date, :unit_price, :quantity]).order('date').map { |t| {"date": t.date.to_s[0..6], "amount": t.unit_price * t.quantity}}
+        unique_datetime = datetime.uniq { |d| d.first }.last(30)    
 
         sum = transactions.where(country: country).map { |transaction| transaction.quantity * transaction.unit_price }.sum
         number_orders = transactions.where(country: country).select(:order_id).distinct.count
@@ -84,6 +90,7 @@ class Api::V1::TransactionsController < Api::ApiController
         {
           status: 'success',
           countries: countries,
+          datetime: unique_datetime,
           revenues: sum,
           avg_revenues: sum / number_orders,
           customers: number_customers,
