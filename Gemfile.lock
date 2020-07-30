@@ -1,3 +1,10 @@
+GIT
+  remote: git://github.com/arches/table_print.git
+  revision: 591affe5283973474ce89cdcc70c1b42b4cf6352
+  branch: master
+  specs:
+    table_print (1.5.7)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -155,6 +162,7 @@ DEPENDENCIES
   rails (~> 6.0.3, >= 6.0.3.2)
   spring
   spring-watcher-listen (~> 2.0.0)
+  table_print!
   tzinfo-data
 
 RUBY VERSION
