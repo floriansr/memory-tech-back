@@ -6,6 +6,11 @@ class Api::V1::TransactionsController < Api::ApiController
       render json: all_revenues(@transactions)
   end
 
+  def one_country
+      @transactions = Transaction.all
+      render json: calculate_one_country(@transactions, params[:country])
+  end
+
   # GET /transactions
   def index
     @transactions = Transaction.all
@@ -50,12 +55,35 @@ class Api::V1::TransactionsController < Api::ApiController
     end
 
     def all_revenues(transactions)
+        one_transac_one_country = transactions.select(:country).distinct
+        countries = one_transac_one_country.map  { |country| country.country }
+
+
         sum = transactions.map { |transaction| transaction.quantity * transaction.unit_price }.sum
         number_orders = transactions.select(:order_id).distinct.count
         number_customers = transactions.select(:customer_id).distinct.count
 
         {
           status: 'success',
+          countries: countries,
+          revenues: sum,
+          avg_revenues: sum / number_orders,
+          customers: number_customers,
+        }
+    end
+
+    def calculate_one_country(transactions, country)
+        one_transac_one_country = transactions.select(:country).distinct
+        countries = one_transac_one_country.map  { |country| country.country }
+    
+
+        sum = transactions.where(country: country).map { |transaction| transaction.quantity * transaction.unit_price }.sum
+        number_orders = transactions.where(country: country).select(:order_id).distinct.count
+        number_customers = transactions.where(country: country).select(:customer_id).distinct.count
+
+        {
+          status: 'success',
+          countries: countries,
           revenues: sum,
           avg_revenues: sum / number_orders,
           customers: number_customers,
