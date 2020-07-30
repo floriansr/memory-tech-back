@@ -1,6 +1,11 @@
 class Api::V1::TransactionsController < Api::ApiController
   before_action :set_transaction, only: [:show, :update, :destroy]
 
+  def all
+      @transactions = Transaction.all
+      render json: all_revenues(@transactions)
+  end
+
   # GET /transactions
   def index
     @transactions = Transaction.all
@@ -42,6 +47,13 @@ class Api::V1::TransactionsController < Api::ApiController
     # Use callbacks to share common setup or constraints between actions.
     def set_transaction
       @transaction = Transaction.find(params[:id])
+    end
+
+    def all_revenues(transactions)
+        {
+          status: 'success',
+          revenues: (transactions.map { |transaction| transaction.quantity * transaction.unit_price }).sum,
+        }
     end
 
     # Only allow a trusted parameter "white list" through.
