@@ -50,9 +50,15 @@ class Api::V1::TransactionsController < Api::ApiController
     end
 
     def all_revenues(transactions)
+        sum = transactions.map { |transaction| transaction.quantity * transaction.unit_price }.sum
+        number_orders = transactions.select(:order_id).distinct.count
+        number_customers = transactions.select(:customer_id).distinct.count
+
         {
           status: 'success',
-          revenues: (transactions.map { |transaction| transaction.quantity * transaction.unit_price }).sum,
+          revenues: sum,
+          avg_revenues: sum / number_orders,
+          customers: number_customers,
         }
     end
 
